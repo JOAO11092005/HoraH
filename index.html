@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conveniência Hora H</title>
+    <link rel="stylesheet" href="./src/css/reset.css">
+    <link rel="stylesheet" href="./src/css/estilo.css">
+    <link rel="stylesheet" href="./src/css/responsive.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/all.min.js"
+        integrity="sha512-6BTOlkauINO65nLhXhthZMtepgJSghyimIalb+crKRPhvhmsCdnIuGcVbR5/aQY2A+260iC1OPy1oCdB6pSSwQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="shortcut icon" href="./src/img/logo.png" type="image/x-icon">
+</head>
+
+<body>
+    <header class="cabecalho">
+        <div class="logo"></div>
+    </header>
+    <div class="pedidoAdicionado">
+        <h2>Pedido Adicionado</h2>
+    </div>
+    <div class="carrinhoCheckout">
+        <div class="sair" onclick="abreCarrinho('f')">
+            <img src="https://cdn-icons-png.flaticon.com/512/483/483366.png" alt="sair" title="Sair">
+        </div>
+        <h1>Seu carrinho</h1>
+
+        <div class="produtos">
+            <div class="produtoCheckout">
+                <div class="img" ></div>
+                <h2>Nome do Produto</h2>
+                
+
+                <div class="detalhes-produto">
+                    <div class="qdButton">+</div>
+                    <div class="quantidade">1</div>
+                    <div class="qdButton">-</div>
+                    
+                </div>
+                <button class="remover-produto">Remover</button>
+            </div>
+
+        </div>
+
+        <div class="resumo-carrinho">
+            <p class="totalAPagar">Total a pagar: R$ <span id="valorTotal">0.00</span></p>
+        </div>
+        <button class="pagamento">Fazer o Pagamento</button>
+    </div>
+    <main>
+
+        <div class="filtro">
+            <div class="logo-empresa"></div>
+            <div class="categorias-bebidas">
+                <select id="categoria" class="bebidas">
+                    <option value="">Lista de Categorias</option>
+                    <option value="cerveja">Cerveja</option>
+                    <option value="whisky">Whisky</option>
+                    <option value="Energetico">Energético</option>
+                    <option value="Refrigerante">Refrigerante</option>
+                    <option value="Cachaças">Cachaças</option>
+                </select>
+
+
+            </div>
+            <div class="pesquisa">
+                <input type="text" id="pesquisa" placeholder="Pesquisar bebida">
+                <button title="Pesquise algum produto">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+
+
+            <div class="carrinho" onclick="abreCarrinho('a')">
+                <div class="quantidade off">2</div>
+                <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+
+        </div>
+
+        <h2 id="cerveja">Cervejas</h2>
+
+        <div id="cerveja-cards" class="produtos-container">
+
+        </div>
+
+
+
+        <h2 id="refrigerante">Refrigerantes</h2>
+
+        <div id="refrigerante-cards" class="produtos-container"></div>
+
+
+
+        <h2 id="whisky">Whisky</h2>
+
+        <div id="whisky-cards" class="produtos-container"></div>
+
+
+
+        <h2 id="energetico">Energéticos</h2>
+
+        <div id="energetico-cards" class="produtos-container"></div>
+
+
+
+        <h2 id="cachaca">Cachaças</h2>
+
+        <div id="cachaca-cards" class="produtos-container"></div>
+    </main>
+
+    <script src="./src/js/index.js"></script>
+</body>
+
+</html>

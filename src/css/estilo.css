@@ -1,0 +1,318 @@
+body{
+    font-family: "Roboto", sans-serif;
+}
+.cabecalho{
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #FFC260;
+    margin: 0 auto;
+background: #FFC260;
+background: linear-gradient(180deg, rgba(255, 194, 96, 1) 80%, rgba(255, 255, 255, 0.77) 100%);
+}
+.cabecalho img{
+    width: 140px;
+}
+.logo{
+    background: url('../img/logo.png') center center no-repeat;
+    width: 150px;
+    background-size: cover;
+    height: 150px;
+}
+.logo-empresa{
+    background: url('../img/logo.png') center center no-repeat;
+    width: 100px;
+    background-size: cover;
+    height: 100px;
+    display: none;
+}
+.logo-empresa.ativo{
+    display: block;
+}
+main{
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+   
+}
+main h2{
+    padding: 30px;
+}
+.filtro{
+    padding: 10px;
+    display: flex;
+    width: 90%;
+    align-items: center;
+  justify-content: center;
+    gap: 10px;
+    margin:  0 auto;
+    
+}
+
+.filtro.fixo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+background: #FFC260;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  padding: 15px 0;
+}
+.filtro:not(.fixo) {
+  background-color: white;
+}
+.filtro input{
+    width: 400px;
+    padding: 10px;
+    /* border: 1px solid black; */
+    border: none;
+    font-size: 19px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+.filtro input:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: inherit;
+}
+#categoria{
+    padding: 15px;
+    width: 230px;
+    border-radius: 20px;
+    font-size: 19px;
+}
+.pesquisa{
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+}
+.pesquisa button{
+    width: 40px;
+    height: 40px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 50px;
+    border: 1px solid black;
+    cursor: pointer;
+}
+.carrinho{
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 50px;
+    padding: 15px;
+    cursor: pointer;
+    position: relative;
+}
+.carrinho.ativo{
+    color: white;
+    font-size: 19px;
+}
+.quantidade{
+    width: 26px;
+    height: 26px;
+    background-color: #FFC260;
+    border: 1px solid black;
+    border-radius: 50px;
+    position: absolute;
+    top: -7px;
+    right: -10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+.quantidade.off{
+    display: none;
+}
+.produto{
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 18px;
+    cursor: pointer;
+}
+.info-produto{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+.btn-comprar{
+    width: 97%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+.categoria{
+    width: 40px;
+    height: 40px;
+    border: 1px solid black;
+    background-color: black;
+    color: white;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+.produtos-container{
+    display: flex;
+    gap: 10px;
+}
+.img{
+    width: 130px;
+    height: 130px;
+    background: url('https://th.bing.com/th/id/OIP.aTzmVO0XZUwg46oc6ehj4gHaHa?w=181&h=181&c=7&r=0&o=7&pid=1.7&rm=3') center center no-repeat;
+    background-size: contain;
+    
+
+}
+.imgProduto{
+     width: 130px;
+    height: 130px;
+    background: url('https://th.bing.com/th/id/OIP.aTzmVO0XZUwg46oc6ehj4gHaHa?w=181&h=181&c=7&r=0&o=7&pid=1.7&rm=3') center center no-repeat;
+    background-size: contain;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+.produtos{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.carrinhoCheckout{
+    display: none;
+    position: relative;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    /* background-color: #FFC260; */
+    flex-direction: column;
+}
+.carrinhoCheckout .pagamento{
+    width: 300px;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 20px;
+    border: none;
+    background-color: red;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.carrinhoCheckout button:active{
+    background-color: rgb(101, 73, 73);
+}
+.sair img{
+    border-radius: 50px;
+    width: 40px;
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    cursor: pointer;
+}
+.pedidoAdicionado{
+    position: fixed;
+    top: 50px;
+    right: 50px;
+    background-color: rgb(55, 208, 53);
+    padding: 20px;
+    border-radius: 50px;
+    color: white;
+    display: none;
+}
+.produtoCheckout{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    position: relative;
+}
+.detalhes-produto{
+    display: flex;
+   align-items: center;
+   justify-content: center;
+    position: relative;
+    gap: 10px;
+}
+.remover-produto{
+    width: 100px;
+    padding: 10px;
+    border-radius: 20px;
+    background-color: red;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: bold;
+    border: none;
+}
+.qdButton{
+    width: 30px;
+    height: 30px;
+    border: 1px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 20px;
+}
+.qdButton:active{
+     background-color: rgba(0, 0, 0, 0.387);
+     color: white;
+}
+/* .qdButton:first-child{
+   margin-right: 10px;
+} */
+#quantidadeProduto{
+    width: 30px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+}
+.resumo-carrinho {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.totalAPagar {
+  font-size: 1.6rem;
+  color: #000000;
+  font-weight: bold;
+  
+ 
+}
+
+
+/* .totalAPagar{
+    padding: 10px;
+    font-size: 25px;
+    font-weight: bold;
+} */
+.produtoCheckout h2{
+    width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
