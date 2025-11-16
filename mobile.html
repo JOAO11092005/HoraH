@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conveniência Hora H - Mobile</title>
+    <!-- Carrega Tailwind CSS para estilização -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração do Tailwind CSS para usar a fonte Inter e cores personalizadas -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-red': '#EA1D2C', // Cor principal similar ao iFood
+                        'primary-green': '#1f8c44', // Cor alternativa
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        #logo{
+            width: 100px;
+        }
+        /* Estilos customizados */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+        /* Contêiner principal para simular o layout de app mobile */
+        #app-container {
+            max-width: 420px; /* Largura máxima típica de celular */
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative; /* Para o carrinho flutuante */
+        }
+        /* Esconde a barra de rolagem horizontal das categorias, mas permite rolar */
+        .scroll-x-hidden::-webkit-scrollbar {
+            display: none;
+        }
+        .scroll-x-hidden {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* Blur effect para o fundo */
+        .blur-active {
+            filter: blur(4px);
+            pointer-events: none;
+            user-select: none;
+        }
+        /* Modal e Overlay */
+        .modal, #carrinhoCheckout {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+        #produtoModal-content {
+            background-color: white;
+            border-radius: 1rem 1rem 0 0;
+            animation: slideInUp 0.3s;
+        }
+        #carrinhoCheckout-content {
+            background-color: #f7f7f7;
+            border-radius: 1rem 1rem 0 0;
+            animation: slideInUp 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideInUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        /* Botão Adicionado */
+        .btn-adicionado {
+            background-color: #1f8c44; /* Verde primário */
+            color: white;
+            pointer-events: none; /* Não permite clique novamente */
+        }
+
+        /* Estilo do Card de Produto */
+        .card-produto .img {
+            height: 100px; /* Altura fixa para a imagem */
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Overlay Global -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>
+    
+    <!-- Contêiner Principal Simulado Mobile -->
+    <div id="app-container">
+
+        <!-- 1. HEADER FIXO (Topo Estilo iFood) -->
+        <header id="app-header" class="sticky top-0 z-30 w-full bg-white shadow-md p-4 pt-6 rounded-b-xl">
+            <div class="flex items-center justify-between mb-3">
+                <!-- LOGO ESTILIZADO EM TEXTO -->
+                <div class="text-3xl font-extrabold text-primary-red flex items-center space-x-1">
+                    <img id="logo" src="./src/img/logo.png" alt="logo">
+                </div>
+                <!-- Ícone de Notificações/Perfil (Para balancear o layout) -->
+                <!-- <button class="p-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v2a3 3 0 11-6 0v-2" />
+                    </svg>
+                </button> -->
+            </div>
+            
+            <!-- Campo de Busca e Filtro -->
+            <div class="flex space-x-2">
+                <input id="pesquisa" type="text" placeholder="Buscar em Bebidas, Snacks, etc..." 
+                       class="flex-grow p-2.5 border border-gray-200 rounded-xl bg-gray-100 text-sm focus:ring-primary-red focus:border-primary-red">
+                <button id="btnPesquisar" class="bg-primary-red p-2.5 rounded-xl text-white hover:bg-red-700 transition duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- 2. CATEGORIAS (Filtro Horizontal) -->
+        <div id="filtro-categorias" class="p-4 bg-white sticky top-28 z-20 shadow-sm">
+            <div class="flex overflow-x-scroll scroll-x-hidden space-x-3">
+                <button data-filter="" class="btn-categoria bg-primary-red text-white px-4 py-2 rounded-full text-sm shadow-md transition duration-150">Todas</button>
+                <button data-filter="cerveja" class="btn-categoria bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm hover:bg-gray-200 transition duration-150">Cervejas</button>
+                <button data-filter="Refrigerante" class="btn-categoria bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm hover:bg-gray-200 transition duration-150">Refrigerantes</button>
+                <button data-filter="whisky" class="btn-categoria bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm hover:bg-gray-200 transition duration-150">Whisky</button>
+                <button data-filter="Energetico" class="btn-categoria bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm hover:bg-gray-200 transition duration-150">Energéticos</button>
+                <button data-filter="Cachaças" class="btn-categoria bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm hover:bg-gray-200 transition duration-150">Cachaças</button>
+            </div>
+        </div>
+
+        <!-- 3. CONTEÚDO PRINCIPAL (Main) -->
+        <main id="main-principal" class="p-4 pt-2">
+            
+            <section id="cervejas-section">
+                <h2 class="categoria-titulo text-xl font-bold mb-3 mt-4 text-gray-800">Cervejas</h2>
+                <div id="cerveja-cards" class="grid grid-cols-2 gap-4">
+                    <!-- Cards de Cervejas serão injetados aqui -->
+                </div>
+            </section>
+
+            <section id="refrigerantes-section">
+                <h2 class="categoria-titulo text-xl font-bold mb-3 mt-8 text-gray-800">Refrigerantes</h2>
+                <div id="refrigerante-cards" class="grid grid-cols-2 gap-4">
+                    <!-- Cards de Refrigerantes serão injetados aqui -->
+                </div>
+            </section>
+
+            <section id="whisky-section">
+                <h2 class="categoria-titulo text-xl font-bold mb-3 mt-8 text-gray-800">Whisky</h2>
+                <div id="whisky-cards" class="grid grid-cols-2 gap-4">
+                    <!-- Cards de Whisky serão injetados aqui -->
+                </div>
+            </section>
+
+            <section id="energeticos-section">
+                <h2 class="categoria-titulo text-xl font-bold mb-3 mt-8 text-gray-800">Energéticos</h2>
+                <div id="energeticos-cards" class="grid grid-cols-2 gap-4">
+                    <!-- Cards de Energéticos serão injetados aqui -->
+                </div>
+            </section>
+
+            <section id="cachacas-section">
+                <h2 class="categoria-titulo text-xl font-bold mb-3 mt-8 text-gray-800">Cachaças e Rum</h2>
+                <div id="cachacas-cards" class="grid grid-cols-2 gap-4">
+                    <!-- Cards de Cachaças serão injetados aqui -->
+                </div>
+            </section>
+            
+            <div class="h-20"></div> <!-- Espaço extra no final -->
+        </main>
+
+        <!-- ÍCONE FLUTUANTE DO CARRINHO (iFood style) -->
+        <button onclick="abreCarrinho('a')" class="fixed right-0 bottom-8 mr-4 p-4 rounded-full bg-primary-red text-white shadow-2xl z-50 transition transform hover:scale-105">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-primary-green rounded-full carrinho-count off">0</span>
+        </button>
+
+    </div> 
+    <!-- Fim do #app-container -->
+
+
+    <!-- MODAL DE DETALHES DO PRODUTO (Flutua por cima) -->
+    <div id="produtoModal" class="modal fixed inset-0 z-[100] flex items-end justify-center">
+        <div id="produtoModal-content" class="w-full max-w-md">
+            <!-- Botão de Fechar -->
+            <div class="flex justify-end p-2">
+                <button onclick="fecharModalProduto()" class="text-gray-500 hover:text-gray-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-4 -mt-6" data-current-product-id="0">
+                <div id="modal-img" class="h-48 bg-gray-200 bg-center bg-no-repeat bg-contain rounded-xl mb-4"></div>
+                
+                <h2 id="modal-nome" class="text-2xl font-bold mb-2">Nome do Produto</h2>
+                <p id="modal-descricao" class="text-gray-600 mb-4">Descrição detalhada do produto.</p>
+                
+                <div class="flex justify-between items-center mt-6">
+                    <span id="modal-valor" class="text-3xl font-extrabold text-primary-red">R$ 0.00</span>
+                    <button id="modal-add-carrinho" 
+                            class="px-6 py-3 bg-primary-red text-white font-bold rounded-full shadow-lg hover:bg-red-700 transition duration-150">
+                        Adicionar ao carrinho
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL DE CHECKOUT DO CARRINHO (Flutua por cima) -->
+    <div id="carrinhoCheckout" class="modal fixed inset-0 z-[100] flex items-end justify-center">
+        <div id="carrinhoCheckout-content" class="w-full max-w-md h-[90vh] flex flex-col p-4">
+            <!-- Header do Carrinho -->
+            <div class="flex justify-between items-center pb-4 border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-800">Seu Pedido</h2>
+                <button onclick="abreCarrinho('f')" class="text-gray-500 hover:text-gray-900 p-2 rounded-full bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Produtos no Carrinho (Scrollable) -->
+            <div class="produtos flex-grow overflow-y-auto py-4 space-y-4">
+                <p>Seu carrinho está vazio.</p>
+                <!-- Produtos serão injetados aqui -->
+            </div>
+
+            <!-- Footer de Checkout -->
+            <div class="pt-4 border-t border-gray-200 bg-white sticky bottom-0">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-semibold text-gray-700">Total:</span>
+                    <span class="text-2xl font-extrabold text-primary-red">R$ <span id="valorTotal">0.00</span></span>
+                </div>
+                <button class="pagamento w-full py-4 bg-primary-green text-white font-bold text-lg rounded-xl shadow-lg hover:bg-green-700 transition duration-150">
+                    Fazer Pedido por WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- NOTIFICAÇÃO -->
+    <div class="pedidoAdicionado fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-xl hidden z-[110]">
+        Adicionado ao Carrinho!
+    </div>
+
+    <!-- SCRIPT JS -->
+    <script>
+        // Dados do JSON de Produtos (embutidos no JS para o arquivo único)
+        const PRODUTOS_DATA = {
+            "cervejas": [
+                {"id": 1, "nome": "Heineken", "valor": 30.00, "categoria": "+18", "img": "https://th.bing.com/th/id/OIP.aTzmVO0XZUwg46oc6ehj4gHaHa?w=181&h=181&c=7&r=0&o=7&pid=1.7&rm=3", "categoria_id": "cerveja", "descricao": "Cerveja Pilsen Lager Premium, apreciada mundialmente pelo seu sabor refrescante e distinto."},
+                {"id": 2, "nome": "Brahma", "valor": 15.00, "categoria": "+18", "img": "https://th.bing.com/th/id/OIP.grmkcrPlMkMm9A3eBfce8wHaE8?w=265&h=180&c=7&r=0&o=7&pid=1.7&rm=3", "categoria_id": "cerveja", "descricao": "Uma cerveja lager clássica brasileira, conhecida por sua leveza e sabor de malte."},
+                {"id": 3, "nome": "Skol", "valor": 15.00, "categoria": "+18", "img": "https://th.bing.com/th/id/OIP.xyqezTYmtlK0DKO-0C_SRwHaHa?w=202&h=202&c=7&r=0&o=7&pid=1.7&rm=3", "categoria_id": "cerveja", "descricao": "A cerveja que 'desce redondo'. Popular pilsen brasileira, leve e refrescante."}
+            ],
+            "refrigerantes": [
+                {"id": 4, "nome": "Fanta", "valor": 3.50, "categoria": "L", "img": "https://cdn.awsli.com.br/600x450/298/298064/produto/58264850/06efce66a9.jpg", "categoria_id": "Refrigerante", "descricao": "Refrigerante de laranja com sabor borbulhante e divertido, amado por todos."},
+                {"id": 5, "nome": "Coca-Cola", "valor": 3.50, "categoria": "L", "img": "https://images.tcdn.com.br/img/img_prod/1115696/coca_cola_original_lata_350ml_27_1_152c3b66fb7a84db006d3238b116cb50.png", "categoria_id": "Refrigerante", "descricao": "O refrigerante mais popular do mundo. Sabor inconfundível e refrescante, perfeito para qualquer ocasião."},
+                {"id": 6, "nome": "Guaraná Antarctica", "valor": 3.50, "categoria": "L", "img": "https://io.convertiez.com.br/m/farmaponte/shop/products/images/29484/large/refrigerante-guarana-antarctica-lata-350ml_25905.webp", "categoria_id": "Refrigerante", "descricao": "O sabor original do Brasil. Feito com o fruto do guaraná da Amazônia, é um refrigerante único."}
+            ],
+            "whisky": [
+                {"id": 7, "nome": "Johnnie Walker", "valor": 120.00, "categoria": "+18", "img": "https://th.bing.com/th/id/OIP.f_5mcccPwbJ0HP0b3drVLQHaHa?w=189&h=189&c=7&r=0&o=7&pid=1.7&rm=3", "categoria_id": "whisky", "descricao": "O whisky escocês mais vendido do mundo. Um blend pioneiro, com sabor vibrante e especiarias."},
+                {"id": 8, "nome": "Ballantine's", "valor": 95.00, "categoria": "+18", "img": "https://carrefourbrfood.vtexassets.com/arquivos/ids/181409320/whisky-ballantine-s-finest-blended-escoces-%E2%80%93-750-ml-1.jpg?v=638695242952330000", "categoria_id": "whisky", "descricao": "Um blended Scotch whisky suave e elegante, com notas de baunilha, maçã e chocolate."},
+                {"id": 9, "nome": "Chivas Regal", "valor": 180.00, "categoria": "+18", "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Chivas_image_for_wikipedia.jpg/960px-Chivas_image_for_wikipedia.jpg", "categoria_id": "whisky", "descricao": "Um clássico whisky escocês de 12 anos, renomado por seu sabor rico e suave, com notas de mel e frutas."}
+            ],
+            "energeticos": [
+                {"id": 10, "nome": "Monster Energy", "valor": 6.50, "categoria": "+18", "img": "https://th.bing.com/th/id/OIP.KxOA9hl7Swf3bzrQKD38kAHaNn?w=115&h=209&c=7&r=0&o=7&pid=1.7&rm=3", "categoria_id": "Energetico", "descricao": "Energético com uma combinação potente de ingredientes para dar o máximo de energia."},
+                {"id": 11, "nome": "Red Bull", "valor": 8.50, "categoria": "+18", "img": "https://m.media-amazon.com/images/I/61mpot9cP8L.jpg", "categoria_id": "Energetico", "descricao": "Te dá asas! Energético funcional que vitaliza corpo e mente, com uma combinação única de ingredientes."},
+                {"id": 12, "nome": "Bally", "valor": 5.90, "categoria": "+18", "img": "https://phygital-files.mercafacil.com/catalogo/uploads/produto/energ_tico_baly_garrafa_2l_f32ddb9a-b149-46c8-bc97-7e6676cf8fef.png", "categoria_id": "Energetico", "descricao": "Energético com sabor de frutas tropicais, refrescante e ideal para aumentar sua disposição."}
+            ],
+            "cachacas": [
+                {"id": 13, "nome": "Dreher", "valor": 21.50, "categoria": "+18", "img": "https://espacoprime.fbitsstatic.net/img/p/conhaque-dreher-900ml-72990/258967-1.jpg", "categoria_id": "Cachaças", "descricao": "Um conhaque de alcatrão tradicional brasileiro, com sabor marcante e inconfundível."},
+                {"id": 14, "nome": "Montilla", "valor": 32.50, "categoria": "+18", "img": "https://www.arenaatacado.com.br/on/demandware.static/-/Sites-storefront-catalog-sv/default/dwc7e642e9/Produtos/8802-7891050004208-rum%20montilla%20ouro%201l-montilla-1.jpg", "categoria_id": "Cachaças", "descricao": "Rum carta ouro, ideal para coquetéis como a famosa 'Cuba Libre' ou para ser apreciado com gelo."},
+                {"id": 15, "nome": "Pitú", "valor": 23.95, "categoria": "+18", "img": "https://destro.fbitsstatic.net/img/p/cachaca-pitu-em-lata-473ml-89560/276558.jpg", "categoria_id": "Cachaças", "descricao": "Uma das cachaças mais famosas do Brasil, perfeita para caipirinhas ou para ser tomada pura."}
+            ]
+        };
+        
+        // --- SELETORES DO DOM ---
+        const cervejasContainer = document.getElementById("cerveja-cards");
+        const refrigerantesContainer = document.getElementById("refrigerante-cards");
+        const whiskysContainer = document.getElementById("whisky-cards");
+        const energeticosContainer = document.getElementById("energeticos-cards");
+        const cachacasContainer = document.getElementById("cachacas-cards");
+
+        const carrinhoCheckout = document.getElementById("carrinhoCheckout");
+        const mainPrincipal = document.getElementById("main-principal");
+        const appContainer = document.getElementById("app-container");
+        const carrinhoComProdutos = document.querySelector("#carrinhoCheckout-content .produtos");
+        const carrinhoCount = document.querySelector(".carrinho-count");
+        const valorTotalElement = document.getElementById("valorTotal");
+        const overlay = document.getElementById("overlay");
+        const btnPesquisar = document.getElementById("btnPesquisar");
+        const inputPesquisa = document.getElementById("pesquisa");
+        const btnPagamento = document.querySelector(".pagamento");
+        const filtroCategorias = document.getElementById("filtro-categorias");
+
+        // --- MODAL PRODUTO ---
+        const produtoModal = document.getElementById("produtoModal");
+        const modalImg = document.getElementById("modal-img");
+        const modalNome = document.getElementById("modal-nome");
+        const modalDescricao = document.getElementById("modal-descricao");
+        const modalValor = document.getElementById("modal-valor");
+        const modalAddCarrinho = document.getElementById("modal-add-carrinho");
+
+        // --- ESTADO DA APLICAÇÃO ---
+        let carrinho = []; 
+        let todosOsProdutos = [];
+
+        // --- CONSTANTES ---
+        const NOME_LOJA = "Conveniência Hora H";
+        const WHATSAPP_NUMBER = "5511999998888"; // Substitua pelo seu número
+
+        // --- INICIALIZAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarProdutos();
+            adicionaListenersFiltro();
+            adicionaListenerPagamento();
+            adicionaEventosCarrinho();
+            adicionaListenerOverlay();
+            adicionaListenerModalCart();
+        });
+
+        // --- CARREGAMENTO DE PRODUTOS ---
+
+        function carregarProdutos() {
+            const response = PRODUTOS_DATA;
+
+            // Salva todos os produtos em um único array para facilitar a busca/modal
+            todosOsProdutos = [
+                ...response.cervejas,
+                ...response.refrigerantes,
+                ...response.whisky,
+                ...response.energeticos,
+                ...response.cachacas
+            ];
+
+            // Renderiza os produtos nas seções corretas
+            produtos('cervejas', response.cervejas);
+            produtos('refrigerantes', response.refrigerantes);
+            produtos('whisky', response.whisky);
+            produtos('energeticos', response.energeticos);
+            produtos('cachacas', response.cachacas);
+        }
+
+        function produtos(tipo, produtoFinal) {
+            let container;
+            switch (tipo) {
+                case 'cervejas': container = cervejasContainer; break;
+                case 'refrigerantes': container = refrigerantesContainer; break;
+                case 'whisky': container = whiskysContainer; break;
+                case 'energeticos': container = energeticosContainer; break;
+                case 'cachacas': container = cachacasContainer; break;
+                default: return;
+            }
+            criaCard(container, produtoFinal);
+        }
+
+        function criaCard(container, produtoFinal) {
+            container.innerHTML = ''; 
+            produtoFinal.forEach(resposta => {
+                const { id, nome, valor, img, categoria, 'categoria_id': categoriaId } = resposta;
+
+                const itemNoCarrinho = carrinho.find(item => item.id === id);
+                const btnClasse = itemNoCarrinho ? 'btn-adicionado' : 'bg-primary-red hover:bg-red-700';
+                const btnTexto = itemNoCarrinho ? 'Adicionado' : 'Adicionar';
+                const btnDisabled = itemNoCarrinho ? 'disabled' : '';
+
+                const produtoHTML = `
+                    <div class="card-produto bg-white rounded-xl shadow-sm overflow-hidden p-3 flex flex-col items-center justify-between transition transform hover:shadow-lg" 
+                         data-categoria-raw="${categoriaId}" data-nome="${nome.toLowerCase()}">
+                        
+                        <div class="clicavel-modal w-full cursor-pointer" onclick="abrirModalProduto(${id})">
+                            <div class="img bg-gray-100 rounded-lg" title="${nome}"
+                                style="background: url('${img}') center center no-repeat; background-size: contain;"></div>
+                            <div class="info-produto pt-2 w-full">
+                                <h3 class="nome-produto text-sm font-semibold truncate">${nome}</h3>
+                                <p class="categoria text-xs text-gray-500 mb-1">${categoriaId}</p>
+                                <h4 class="preco text-lg font-extrabold text-primary-red">R$${valor.toFixed(2).replace('.', ',')}</h4>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-comprar w-full mt-2 py-2 text-sm text-white font-bold rounded-lg transition duration-150 ${btnClasse}" 
+                                data-id="${id}" ${btnDisabled}>
+                            ${btnTexto}
+                        </button>
+                    </div>
+                `;
+                container.innerHTML += produtoHTML;
+            });
+
+            // Delegação de eventos para botões "Adicionar"
+            container.addEventListener('click', (e) => {
+                if (e.target && e.target.classList.contains('btn-comprar')) {
+                    const id = parseInt(e.target.dataset.id);
+                    const produto = todosOsProdutos.find(p => p.id === id);
+                    if (produto) {
+                        postCarrinho(produto, e.target);
+                    }
+                }
+            });
+        }
+
+        // --- LÓGICA DO CARRINHO ---
+
+        function postCarrinho(produto, btnElement) {
+            notificacao();
+
+            const itemExistente = carrinho.find(item => item.id === produto.id);
+
+            if (itemExistente) {
+                itemExistente.quantidade++;
+            } else {
+                carrinho.push({ ...produto, quantidade: 1 });
+            }
+
+            if (btnElement && !btnElement.classList.contains('btn-adicionado')) {
+                btnElement.textContent = 'Adicionado';
+                btnElement.classList.remove('bg-primary-red', 'hover:bg-red-700');
+                btnElement.classList.add('btn-adicionado');
+                btnElement.disabled = true;
+            }
+
+            atualizarContadorCarrinho();
+        }
+
+        function atualizarContadorCarrinho() {
+            const totalItens = carrinho.reduce((acc, item) => acc + item.quantidade, 0);
+            
+            if (totalItens > 0) {
+                carrinhoCount.innerHTML = totalItens;
+                carrinhoCount.classList.remove("hidden");
+            } else {
+                carrinhoCount.innerHTML = '0';
+                carrinhoCount.classList.add("hidden");
+            }
+        }
+
+        function abreCarrinho(response) {
+            if (response === 'a') {
+                carrinhoCheckout.style.display = 'flex';
+                appContainer.classList.add('blur-active');
+                overlay.classList.remove('hidden'); // Usa hidden para o Tailwind
+                renderizarItensCarrinho(); 
+            }
+            else if (response === 'f') {
+                carrinhoCheckout.style.display = 'none';
+                atualizarOverlayEBlur();
+            }
+        }
+
+        function renderizarItensCarrinho() {
+            if (carrinho.length === 0) {
+                carrinhoComProdutos.innerHTML = '<p class="text-center text-gray-500 py-10">Seu carrinho está vazio. Adicione um produto!</p>';
+                valorTotalElement.textContent = '0,00';
+                return;
+            }
+
+            carrinhoComProdutos.innerHTML = '';
+            let totalGeral = 0;
+
+            carrinho.forEach((item) => {
+                const subtotal = item.valor * item.quantidade;
+                totalGeral += subtotal;
+
+                carrinhoComProdutos.innerHTML += `
+                    <div class="produtoCheckout flex items-center bg-white p-3 rounded-xl shadow-sm" data-id="${item.id}">
+                        <div class="w-12 h-12 bg-gray-100 rounded-md mr-3" 
+                            style="background: url('${item.img}') center center no-repeat; background-size: contain;"></div>
+                        
+                        <div class="flex-grow">
+                            <h2 class="font-semibold text-gray-800">${item.nome}</h2>
+                            <h3 class="preco-item text-primary-red font-bold">R$ ${subtotal.toFixed(2).replace('.', ',')}</h3>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <button class="qdButton aumentar p-1 text-primary-red border border-primary-red rounded-full w-6 h-6 flex items-center justify-center font-bold text-lg leading-none transition hover:bg-red-50" data-acao="aumentar">+</button>
+                            <div class="quantidadeProduto font-bold text-gray-800">${item.quantidade}</div>
+                            <button class="qdButton diminuir p-1 text-primary-red border border-primary-red rounded-full w-6 h-6 flex items-center justify-center font-bold text-lg leading-none transition hover:bg-red-50" data-acao="diminuir">-</button>
+                        </div>
+                        
+                        <button class="remover-produto ml-3 text-gray-400 hover:text-primary-red transition" data-acao="remover" title="Remover">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            });
+
+            valorTotalElement.textContent = totalGeral.toFixed(2).replace('.', ',');
+        }
+
+        // Delegação de eventos para botões do carrinho
+        function adicionaEventosCarrinho() {
+            carrinhoComProdutos.addEventListener('click', (e) => {
+                const target = e.target.closest('button');
+                if (!target || !target.dataset.acao) return;
+
+                const produtoDiv = target.closest('.produtoCheckout');
+                const id = parseInt(produtoDiv.dataset.id);
+                const acao = target.dataset.acao;
+
+                switch (acao) {
+                    case 'aumentar':
+                        alterarQuantidade(id, 1);
+                        break;
+                    case 'diminuir':
+                        alterarQuantidade(id, -1);
+                        break;
+                    case 'remover':
+                        removerItemCarrinho(id);
+                        break;
+                }
+            });
+        }
+
+        function alterarQuantidade(id, delta) {
+            const itemIndex = carrinho.findIndex(item => item.id === id);
+            if (itemIndex === -1) return;
+
+            carrinho[itemIndex].quantidade += delta;
+
+            if (carrinho[itemIndex].quantidade <= 0) {
+                removerItemCarrinho(id); 
+            } else {
+                renderizarItensCarrinho(); 
+                atualizarContadorCarrinho();
+            }
+        }
+
+        function removerItemCarrinho(id) {
+            carrinho = carrinho.filter(item => item.id !== id);
+            
+            // Reativa o botão na lista principal
+            const btnNaPagina = document.querySelector(`.btn-comprar[data-id="${id}"]`);
+            if (btnNaPagina) {
+                btnNaPagina.textContent = 'Adicionar';
+                btnNaPagina.classList.remove('btn-adicionado');
+                btnNaPagina.classList.add('bg-primary-red', 'hover:bg-red-700');
+                btnNaPagina.disabled = false;
+            }
+
+            renderizarItensCarrinho();
+            atualizarContadorCarrinho();
+        }
+
+
+        // --- LÓGICA DE PAGAMENTO (WHATSAPP) ---
+
+        function adicionaListenerPagamento() {
+            btnPagamento.addEventListener('click', () => {
+                if (carrinho.length === 0) {
+                    // Substituir por um modal/mensagem na interface, não use alert()
+                    console.error("Seu carrinho está vazio!");
+                    return;
+                }
+
+                let mensagem = `*Novo Pedido - ${NOME_LOJA}*\n\n`;
+                mensagem += "*Resumo do Pedido:*\n";
+                let total = 0;
+
+                carrinho.forEach(item => {
+                    const subtotal = item.valor * item.quantidade;
+                    total += subtotal;
+                    mensagem += `------------------------------------\n`;
+                    mensagem += `*Produto:* ${item.nome}\n`;
+                    mensagem += `*Qtd:* ${item.quantidade}\n`;
+                    mensagem += `*Subtotal:* R$ ${subtotal.toFixed(2).replace('.', ',')}\n`;
+                });
+
+                mensagem += `------------------------------------\n`;
+                mensagem += `*Total do Pedido: R$ ${total.toFixed(2).replace('.', ',')}*\n\n`;
+                mensagem += `Gostaria de finalizar este pedido.`;
+
+                const urlWhatsApp = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensagem)}`;
+                
+                window.open(urlWhatsApp, '_blank');
+            });
+        }
+
+        // --- LÓGICA DE BUSCA E FILTRO ---
+
+        function adicionaListenersFiltro() {
+            btnPesquisar.addEventListener('click', filtrarProdutos);
+            inputPesquisa.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    filtrarProdutos();
+                }
+            });
+            // Delegação de eventos para os botões de categoria
+            filtroCategorias.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btn-categoria');
+                if (btn) {
+                    // Remove destaque de todos
+                    document.querySelectorAll('.btn-categoria').forEach(b => {
+                        b.classList.remove('bg-primary-red', 'text-white');
+                        b.classList.add('bg-gray-100', 'text-gray-700');
+                    });
+                    // Adiciona destaque ao clicado
+                    btn.classList.add('bg-primary-red', 'text-white');
+                    btn.classList.remove('bg-gray-100', 'text-gray-700');
+
+                    filtrarProdutos(btn.dataset.filter);
+                }
+            });
+        }
+
+        function filtrarProdutos(categoriaSelecionada) {
+            const termoBusca = inputPesquisa.value.toLowerCase();
+            if (typeof categoriaSelecionada === 'undefined') {
+                // Se o filtro não foi passado pelo botão de categoria, use a categoria 'Todas' (vazio)
+                categoriaSelecionada = document.querySelector('.btn-categoria.bg-primary-red')?.dataset.filter || "";
+            }
+
+            const todosProdutosCards = document.querySelectorAll('.card-produto');
+            const titulosCategoria = document.querySelectorAll('.categoria-titulo');
+
+            // Mapeia seções para títulos
+            const secoesVisiveis = new Set();
+
+            todosProdutosCards.forEach(card => {
+                const nomeProduto = card.dataset.nome;
+                const categoriaProduto = card.dataset.categoriaRaw;
+                
+                const matchBusca = nomeProduto.includes(termoBusca);
+                const matchCategoria = (categoriaSelecionada === "" || categoriaSelecionada === categoriaProduto);
+
+                if (matchBusca && matchCategoria) {
+                    card.style.display = 'flex';
+                    // Adiciona a seção ao set de visíveis
+                    secoesVisiveis.add(card.closest('section').querySelector('.categoria-titulo'));
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Mostra/Esconde títulos
+            titulosCategoria.forEach(h2 => {
+                h2.style.display = secoesVisiveis.has(h2) ? 'block' : 'none';
+            });
+        }
+
+
+        // --- LÓGICA DO MODAL DE PRODUTO E OVERLAY ---
+
+        function abrirModalProduto(id) {
+            const produto = todosOsProdutos.find(p => p.id === id);
+            if (!produto) return;
+
+            // 1. Salva o ID no próprio modal (CORREÇÃO para o erro anterior)
+            produtoModal.querySelector('#produtoModal-content').dataset.currentProductId = id;
+
+            // 2. Atualiza as informações do modal
+            modalImg.style.background = `url('${produto.img}') center center no-repeat`;
+            modalImg.style.backgroundSize = 'contain';
+            modalNome.textContent = produto.nome;
+            modalDescricao.textContent = produto.descricao;
+            modalValor.textContent = `R$ ${produto.valor.toFixed(2).replace('.', ',')}`;
+
+            // 3. Atualiza o estado do botão
+            const itemNoCarrinho = carrinho.find(item => item.id === id);
+            if (itemNoCarrinho) {
+                modalAddCarrinho.textContent = 'Adicionado';
+                modalAddCarrinho.classList.remove('bg-primary-red', 'hover:bg-red-700');
+                modalAddCarrinho.classList.add('btn-adicionado');
+                modalAddCarrinho.disabled = true;
+            } else {
+                modalAddCarrinho.textContent = 'Adicionar ao carrinho';
+                modalAddCarrinho.classList.add('bg-primary-red', 'hover:bg-red-700');
+                modalAddCarrinho.classList.remove('btn-adicionado');
+                modalAddCarrinho.disabled = false;
+            }
+
+            // 4. Mostra o modal
+            produtoModal.style.display = 'flex';
+            overlay.classList.remove('hidden');
+            appContainer.classList.add('blur-active');
+        }
+
+        // Listener permanente para o botão de adicionar no modal
+        function adicionaListenerModalCart() {
+            modalAddCarrinho.addEventListener('click', () => {
+                // Pega o ID que salvamos no modal
+                const idContainer = produtoModal.querySelector('#produtoModal-content');
+                const id = parseInt(idContainer.dataset.currentProductId);
+                if (!id) return; 
+
+                const produto = todosOsProdutos.find(p => p.id === id);
+                if (!produto) return;
+
+                // Encontra o botão correspondente na lista principal
+                const btnNaPagina = document.querySelector(`.btn-comprar[data-id="${produto.id}"]`);
+                
+                postCarrinho(produto, btnNaPagina); 
+                
+                // Atualiza o próprio botão do modal
+                modalAddCarrinho.textContent = 'Adicionado';
+                modalAddCarrinho.classList.remove('bg-primary-red', 'hover:bg-red-700');
+                modalAddCarrinho.classList.add('btn-adicionado');
+                modalAddCarrinho.disabled = true;
+
+                // Fecha o modal
+                setTimeout(fecharModalProduto, 500); 
+            });
+        }
+
+
+        function fecharModalProduto() {
+            produtoModal.style.display = 'none';
+            atualizarOverlayEBlur();
+        }
+
+        // Verifica se algum modal ainda está aberto.
+        function atualizarOverlayEBlur() {
+            const isCartOpen = (carrinhoCheckout.style.display === 'flex');
+            const isModalOpen = (produtoModal.style.display === 'flex');
+
+            if (!isCartOpen && !isModalOpen) {
+                overlay.classList.add('hidden');
+                appContainer.classList.remove('blur-active');
+            }
+        }
+
+        function adicionaListenerOverlay() {
+            overlay.addEventListener('click', () => {
+                if (produtoModal.style.display === 'flex') {
+                    fecharModalProduto();
+                }
+                if (carrinhoCheckout.style.display === 'flex') {
+                    abreCarrinho('f');
+                }
+            });
+        }
+
+
+        // --- FUNÇÕES UTILITÁRIAS ---
+
+        function notificacao() {
+            const pedidoAdicionado = document.querySelector('.pedidoAdicionado');
+            pedidoAdicionado.classList.remove('hidden');
+            pedidoAdicionado.style.display = 'block'; // Usamos block pois hidden é do Tailwind
+            setTimeout(() => {
+                pedidoAdicionado.style.display = 'none';
+                pedidoAdicionado.classList.add('hidden');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

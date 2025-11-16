@@ -2,7 +2,7 @@
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-K">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conveniência Hora H</title>
     <link rel="stylesheet" href="./src/css/reset.css">
@@ -21,12 +21,12 @@
 </head>
 
 <body>
+    <div id="overlay" class="overlay"></div>
+
     <header class="cabecalho">
         <div class="logo"></div>
     </header>
-    <div class="pedidoAdicionado">
-        <h2>Pedido Adicionado</h2>
-    </div>
+
     <div class="carrinhoCheckout">
         <div class="sair" onclick="abreCarrinho('f')">
             <img src="https://cdn-icons-png.flaticon.com/512/483/483366.png" alt="sair" title="Sair">
@@ -34,20 +34,7 @@
         <h1>Seu carrinho</h1>
 
         <div class="produtos">
-            <div class="produtoCheckout">
-                <div class="img" ></div>
-                <h2>Nome do Produto</h2>
-                
-
-                <div class="detalhes-produto">
-                    <div class="qdButton">+</div>
-                    <div class="quantidade">1</div>
-                    <div class="qdButton">-</div>
-                    
-                </div>
-                <button class="remover-produto">Remover</button>
-            </div>
-
+            <p>Seu carrinho está vazio.</p>
         </div>
 
         <div class="resumo-carrinho">
@@ -68,56 +55,54 @@
                     <option value="Refrigerante">Refrigerante</option>
                     <option value="Cachaças">Cachaças</option>
                 </select>
-
-
             </div>
             <div class="pesquisa">
                 <input type="text" id="pesquisa" placeholder="Pesquisar bebida">
-                <button title="Pesquise algum produto">
+                <button title="Pesquise algum produto" id="btnPesquisar">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
             </div>
 
 
             <div class="carrinho" onclick="abreCarrinho('a')">
-                <div class="quantidade off">2</div>
+                <div class="quantidade off">0</div>
                 <i class="fa-solid fa-cart-shopping"></i>
             </div>
-
+            <div class="pedidoAdicionado">
+                <h2>Pedido Adicionado</h2>
+            </div>
         </div>
 
-        <h2 id="cerveja">Cervejas</h2>
+        <h2 id="cerveja" class="categoria-titulo">Cervejas</h2>
+        <div id="cerveja-cards" class="produtos-container"></div>
 
-        <div id="cerveja-cards" class="produtos-container">
-
-        </div>
-
-
-
-        <h2 id="refrigerante">Refrigerantes</h2>
-
+        <h2 id="refrigerante" class="categoria-titulo">Refrigerantes</h2>
         <div id="refrigerante-cards" class="produtos-container"></div>
 
-
-
-        <h2 id="whisky">Whisky</h2>
-
+        <h2 id="whisky" class="categoria-titulo">Whisky</h2>
         <div id="whisky-cards" class="produtos-container"></div>
 
-
-
-        <h2 id="energetico">Energéticos</h2>
-
+        <h2 id="energetico" class="categoria-titulo">Energéticos</h2>
         <div id="energetico-cards" class="produtos-container"></div>
 
-
-
-        <h2 id="cachaca">Cachaças</h2>
-
+        <h2 id="cachaca" class="categoria-titulo">Cachaças</h2>
         <div id="cachaca-cards" class="produtos-container"></div>
     </main>
 
+    <div id="produtoModal" class="modal">
+        <div class="modal-conteudo">
+            <span class="modal-fechar" onclick="fecharModalProduto()">&times;</span>
+            <div id="modal-img" class="imgProduto"></div>
+            <h2 id="modal-nome">Nome do Produto</h2>
+            <p id="modal-descricao">Descrição completa do produto aqui.</p>
+            <h3 id="modal-valor">R$ 0,00</h3>
+            <button id="modal-add-carrinho" class="btn-comprar">Adicionar ao carrinho</button>
+        </div>
+    </div>
+
+
     <script src="./src/js/index.js"></script>
-</body>
+    <script src="./src/js/mobile.js"></script>
+    </body>
 
 </html>
