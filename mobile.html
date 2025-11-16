@@ -7,6 +7,9 @@
     <!-- Carrega Tailwind CSS para estilização -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Configuração do Tailwind CSS para usar a fonte Inter e cores personalizadas -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/all.min.js"
+        integrity="sha512-6BTOlkauINO65nLhXhthZMtepgJSghyimIalb+crKRPhvhmsCdnIuGcVbR5/aQY2A+260iC1OPy1oCdB6pSSwQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -25,6 +28,7 @@
     <style>
         #logo{
             width: 100px;
+            
         }
         /* Estilos customizados */
         body {
@@ -76,6 +80,9 @@
             border-radius: 1rem 1rem 0 0;
             animation: slideInUp 0.3s;
         }
+        #app-header{
+            background-color: #FFC260;
+        }
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -97,6 +104,41 @@
             width: 100%;
             margin-bottom: 0.5rem;
         }
+        .pesquisa {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    width: 100%;
+}
+
+.pesquisa input {
+    flex: 1;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    outline: none;
+}
+
+.pesquisa button {
+    width: 40px;
+    height: 40px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 50px;
+    border: 1px solid black;
+    cursor: pointer;
+    color: black;
+}
+
+.pesquisa button i {
+    font-size: 18px;
+}
+#btnPesquisar{
+    color: black;
+}
     </style>
 </head>
 <body>
@@ -107,7 +149,7 @@
     <div id="app-container">
 
         <!-- 1. HEADER FIXO (Topo Estilo iFood) -->
-        <header id="app-header" class="sticky top-0 z-30 w-full bg-white shadow-md p-4 pt-6 rounded-b-xl">
+        <header id="app-header" class="sticky top-0 z-30 w-full bg-[##FFC260] shadow-md p-4 pt-6 rounded-b-xl">
             <div class="flex items-center justify-between mb-3">
                 <!-- LOGO ESTILIZADO EM TEXTO -->
                 <div class="text-3xl font-extrabold text-primary-red flex items-center space-x-1">
@@ -123,13 +165,12 @@
             
             <!-- Campo de Busca e Filtro -->
             <div class="flex space-x-2">
-                <input id="pesquisa" type="text" placeholder="Buscar em Bebidas, Snacks, etc..." 
-                       class="flex-grow p-2.5 border border-gray-200 rounded-xl bg-gray-100 text-sm focus:ring-primary-red focus:border-primary-red">
-                <button id="btnPesquisar" class="bg-primary-red p-2.5 rounded-xl text-white hover:bg-red-700 transition duration-150">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </button>
+               <div class="pesquisa">
+    <input type="text" id="pesquisa" placeholder="Pesquisar bebida">
+    <button title="Pesquise algum produto" id="btnPesquisar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+</div>
             </div>
         </header>
 
